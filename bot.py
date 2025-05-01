@@ -235,7 +235,8 @@ async def cmd_start(message: Message):
             f"Hello, *{first_name}*! \nWelcome to *Horda Shop*! 🎉\n\n"
             "*💫 Tap the menu below to snoop around.*\n"
             "*Deals don’t bite, but they do disappear🫥 — so don’t blink...*\n\n\n"
-            "*🪴Our News Channel:* [@HORDAHORDA]"
+            "*🪴Our News Channel:* [@HORDAHORDA]\n"
+            "*Reviews:* [hordareviews]"
         ),
         parse_mode="Markdown",
         reply_markup=main_menu()
