@@ -937,6 +937,52 @@ async def handle_userstat(message: Message):
         parse_mode="Markdown"
     )
 
+# Команда: /userstat_by_id
+@dp.message(Command(commands=["userstat_by_id"]))
+async def handle_userstat_by_id(message: Message):
+    if not is_admin(message.from_user.id):
+        await message.answer("🚫 You don't have permission to use this command.")
+        return
+
+    args = message.text.split()
+    if len(args) < 2:
+        await message.answer("Usage: `/userstat_by_id <user_id>`", parse_mode="Markdown")
+        return
+
+    try:
+        user_id = int(args[1])
+
+        # Проверяем, существует ли пользователь
+        cursor.execute("SELECT user_id, username, referrals_count, coins, rewards FROM users WHERE user_id = ?", (user_id,))
+        user = cursor.fetchone()
+        if not user:
+            await message.answer(f"User with ID `{user_id}` not found.", parse_mode="Markdown")
+            return
+
+        user_id, username, referrals_count, coins, rewards = user
+        rewards_list = rewards if rewards else "No rewards yet."
+
+        # Получаем список рефералов
+        cursor.execute("SELECT username FROM users WHERE referrer_id = ?", (user_id,))
+        referrals = cursor.fetchall()
+        referrals_list = "\n".join([f"• @{referral[0]}" for referral in referrals]) if referrals else "No referrals yet."
+
+        # Отправляем статистику
+        await message.answer(
+            f"*User Statistics:*\n\n"
+            f"*User ID:* `{user_id}`\n"
+            f"*Username:* `@{username if username else 'No username'}`\n"
+            f"*Referrals:* `{referrals_count}`\n"
+            f"*Coins:* `{coins} 🏅`\n"
+            f"*Rewards:* `{rewards_list}`\n\n"
+            f"*Referrals List:*\n{referrals_list}",
+            parse_mode="Markdown"
+        )
+
+    except ValueError:
+        await message.answer("Invalid input. Please provide a valid user ID.")
+
+
 # Команда: /list_users
 @dp.message(Command(commands=["list_users"]))
 async def handle_list_users(message: Message):
